@@ -1,0 +1,120 @@
+.menu-header-bar {
+    background: linear-gradient(135deg, #4e2a04, #7b4a1e);
+    border-radius: 14px 14px 0 0;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.menu-header-bar h5 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.btn-add-menu {
+    background: #d4a843;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 18px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-add-menu:hover {
+    background: #b8860b;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.table-menu th {
+    background: #f5ebe0;
+    color: #4e2a04;
+    font-weight: 700;
+    border-top: none;
+}
+
+.badge-makanan,
+.badge-pimpinan {
+    background: #f5ebe0;
+    color: #7b4a1e;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+
+.badge-minuman,
+.badge-staff {
+    background: #e3f2fd;
+    color: #1565c0;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+
+.stock-input {
+    width: 70px;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 3px 6px;
+}
+
+.stock-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.stock-ok {
+    background: #d1e7dd;
+    color: #0a5436;
+}
+
+.stock-low {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.stock-out {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.action-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.btn-edit-menu {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.btn-delete-menu {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.btn-edit-menu:hover {
+    background: #1565c0;
+    color: white;
+}
+
+.btn-delete-menu:hover {
+    background: #842029;
+    color: white;
+}

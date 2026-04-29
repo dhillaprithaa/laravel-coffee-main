@@ -262,7 +262,7 @@
           <div class="input-wrap">
             <i class="fas fa-user"></i>
             <input type="text" id="username" name="username"
-              class="form-control {{ $errors->has('username') ? 'is-invalid' : '' }}" placeholder="Masukkan username"
+              class="form-control {{ $errors->has('username') ? 'is-invalid' : '' }}" placeholder="Masukkan Username"
               value="{{ old('username') }}" autocomplete="username" autofocus>
           </div>
           @error('username')
@@ -273,7 +273,7 @@
           <label class="form-label" for="password">Password</label>
           <div class="input-wrap">
             <i class="fas fa-lock"></i>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Masukkan password"
+            <input type="password" id="password" name="password" class="form-control" placeholder="Masukkan Password"
               autocomplete="current-password">
           </div>
         </div>

@@ -4,14 +4,16 @@ namespace App\Models;
 
 use App\Enums\OrderType;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
-use Illuminate\Support\Carbon;
 use App\Models\Scopes\OrderScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Order extends Model
 {
+    use HasUlids;
     /**
      * The attributes that are mass assignable.
      */
@@ -33,6 +35,7 @@ class Order extends Model
         return [
             'type' => OrderType::class,
             'status' => OrderStatus::class,
+            'grand_total' => 'decimal:2',
         ];
     }
 
@@ -90,13 +93,54 @@ class Order extends Model
     }
 
     /**
-     * Scope: orders in a specific year/month.
+     * Scope: filter by date range (inclusive).
      */
-    public function scopeInMonth(Builder $query, string $year, string $month): Builder
+    public function scopeWhereInRange(Builder $query, string $start, string $end): Builder
     {
         return $query
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month);
+            ->whereDate('created_at', '>=', $start)
+            ->whereDate('created_at', '<=', $end);
+    }
+
+    /**
+     * Scope: filter by order type.
+     */
+    public function scopeWhereType(Builder $query, string|OrderType $type): Builder
+    {
+        if ($type instanceof OrderType) $type = $type->value;
+        else $type = OrderType::tryFrom($type)?->value ?? $type;
+
+        return $query->where('type', $type);
+    }
+
+    /**
+     * Scope: filter by order status.
+     */
+    public function scopeWhereStatus(Builder $query, string|OrderStatus $status): Builder
+    {
+        if ($status instanceof OrderStatus) $status = $status->value;
+        else $status = OrderStatus::tryFrom($status)?->value ?? $status;
+
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope: search by invoice (LIKE %...%).
+     */
+    public function scopeWhereInvoice(Builder $query, string $invoice): Builder
+    {
+        return $query->where('invoice', 'like', '%' . $invoice . '%');
+    }
+
+    /**
+     * Scope: filter by payment method.
+     */
+    public function scopeWherePayment(Builder $query, string|PaymentMethod $method): Builder
+    {
+        if ($method instanceof PaymentMethod) $method = $method->value;
+        else $method = PaymentMethod::tryFrom($method)?->value ?? $method;
+
+        return $query->whereHas('payment', fn($q) => $q->where('method', $method));
     }
 
     /**

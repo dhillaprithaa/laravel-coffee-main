@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', 'Kelola Staff')
-@section('page-title', 'Kelola Staff')
+@section('title', 'Kelola Pengguna')
+@section('page-title', 'Kelola Pengguna')
 
 @push('styles')
   <link rel="stylesheet" href="{{ asset('static/admin/menus/table.css') }}">
@@ -12,10 +12,10 @@
   @endif
   <div class="card elevation-2" style="border-radius:14px; overflow:hidden;">
     <div class="menu-header-bar">
-      <h5><i class="fas fa-users mr-2"></i>Daftar Staff</h5>
+      <h5><i class="fas fa-users mr-2"></i>Daftar Pengguna</h5>
       @can('create', \App\Models\User::class)
         <a href="{{ route('admin.staff.create') }}" class="btn-add-menu">
-          <i class="fas fa-plus mr-1"></i> Tambah Staff
+          <i class="fas fa-plus mr-1"></i> Tambah Pengguna
         </a>
       @endcan
     </div>

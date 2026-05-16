@@ -92,7 +92,7 @@ Route::prefix('/selforder')
     ->name('selforder.')
     ->group(function () {
         Route::get('/success/{invoice}', [SelfOrderController::class, 'success'])->name('success');
-        Route::get('/{number}', [SelfOrderController::class, 'show'])->name('show');
+        Route::get('/{table}', [SelfOrderController::class, 'show'])->name('show');
         Route::post('/checkout', [SelfOrderController::class, 'checkout'])->name('checkout');
     });
 

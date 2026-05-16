@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Enums\RoleType;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\StoreStaffRequest;
 use App\Http\Requests\UpdateStaffRequest;
-use App\Models\User;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 class StaffController extends Controller
 {
@@ -22,7 +22,7 @@ class StaffController extends Controller
     public function index(): View
     {
         return view('admin.staff.index', [
-            'staffList' => User::staff()->latest()->get(),
+            'staffList' => User::latest()->get(),
         ]);
     }
 
@@ -66,7 +66,6 @@ class StaffController extends Controller
     public function update(UpdateStaffRequest $request, User $staff): RedirectResponse
     {
         $data = $request->safe()->except('password');
-
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->password);
         }

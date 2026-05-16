@@ -11,7 +11,7 @@
     <div class="col-lg-7">
       <div class="form-card">
         <div class="form-card-header">
-          <h5><i class="fas fa-user-edit mr-2"></i>Edit Staff: {{ $staff->name }}</h5>
+          <h5><i class="fas fa-user-edit mr-2"></i>{{ $staff->name }}</h5>
         </div>
         <div class="form-card-body">
           @if ($errors->any())

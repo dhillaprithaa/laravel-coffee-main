@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Enums\MenuCategory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Menu extends Model
 {
+    use HasUlids;
     /**
      * The attributes that are mass assignable.
      */
@@ -17,7 +19,6 @@ class Menu extends Model
         'category',
         'price',
         'stock',
-        'image',
     ];
 
     /**
@@ -27,6 +28,7 @@ class Menu extends Model
     {
         return [
             'category' => MenuCategory::class,
+            'price' => 'decimal:2',
         ];
     }
 
@@ -36,7 +38,7 @@ class Menu extends Model
     protected function available(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->stock > 0,
+            get: fn() => $this->stock > 0,
         );
     }
 

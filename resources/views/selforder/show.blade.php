@@ -82,10 +82,10 @@
             @if ($menu->available)
               <div class="qty-control" id="qty-{{ $menu->id }}">
                 <button class="qty-btn minus" id="minus-{{ $menu->id }}"
-                  onclick="cartDecrement({{ $menu->id }})">−</button>
+                  onclick="cartDecrement('{{ $menu->id }}')">−</button>
                 <span class="qty-num" id="qty-num-{{ $menu->id }}">0</span>
                 <button class="qty-btn plus" id="plus-{{ $menu->id }}"
-                  onclick="cartIncrement({{ $menu->id }})">+</button>
+                  onclick="cartIncrement('{{ $menu->id }}')">+</button>
               </div>
             @endif
           </div>
@@ -174,7 +174,7 @@
   </script>
 
   <script>
-    const TABLE_ID = {{ $table->id }};
+    const TABLE_ID = '{{ $table->id }}';
     const CHECKOUT_URL = '{{ route('selforder.checkout') }}';
     const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -199,7 +199,7 @@
 
       if (!cart[key]) {
         cart[key] = {
-          id: parseInt(el.dataset.id),
+          id: el.dataset.id,
           name: el.dataset.name,
           price: parseInt(el.dataset.price),
           qty: 1

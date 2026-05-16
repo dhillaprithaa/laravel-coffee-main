@@ -30,13 +30,13 @@
                   <tr>
                     <td><span class="meja-num">Meja {{ $table->number }}</span></td>
                     <td>
-                      <div class="qrcode" data-url="{{ route('selforder.show', $table->number) }}">
+                      <div class="qrcode" data-url="{{ route('selforder.show', $table->id) }}">
                     </td>
                     <td>
                       <code>
-                        <a href="{{ route('selforder.show', $table->number) }}" target="_blank"
+                        <a href="{{ route('selforder.show', $table->id) }}" target="_blank"
                           style="color:#7b4a1e; font-size:.8rem;">
-                          {{ route('selforder.show', $table->number) }}
+                          {{ route('selforder.show', $table->id) }}
                         </a>
                       </code>
                     </td>

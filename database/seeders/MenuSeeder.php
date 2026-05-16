@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Enums\MenuCategory;
 use App\Models\Menu;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Enums\MenuCategory;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class MenuSeeder extends Seeder
 {
@@ -37,6 +37,8 @@ class MenuSeeder extends Seeder
             ],
         ];
 
-        Menu::insert($menus);
+        foreach ($menus as $menu) {
+            Menu::create($menu);
+        }
     }
 }

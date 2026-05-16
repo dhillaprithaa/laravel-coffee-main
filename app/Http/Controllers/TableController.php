@@ -25,7 +25,7 @@ class TableController extends Controller
      */
     public function index(): View
     {
-        $tables = Table::orderBy('number')->get();
+        $tables = Table::query()->orderBy('number', 'asc')->get();
 
         return view('admin.tables', [
             'tables' => $tables,
@@ -60,7 +60,7 @@ class TableController extends Controller
      */
     public function generate()
     {
-        $tables = Table::orderBy('number')->get()->map(function (Table $table) {
+        $tables = Table::query()->orderBy('number', 'asc')->get()->map(function (Table $table) {
             $url = route('selforder.show', $table->number);
             $qrcode = QrCode::format('svg')->size(180)->margin(1)->color(26, 10, 0)->generate($url);
 

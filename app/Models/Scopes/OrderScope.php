@@ -17,14 +17,13 @@ class OrderScope implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         $authenticated = Auth::check();
+        if (!$authenticated) return;
 
-        if ($authenticated) {
-            $user = Auth::user();
-            if ($user->role === RoleType::STAFF) {
-                $builder
-                    ->whereMonth('created_at', Carbon::now()->month)
-                    ->whereYear('created_at', Carbon::now()->year);
-            }
-        }
+        $user = Auth::user();
+        if ($user->role !== RoleType::PIMPINAN) return;
+
+        $builder
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year);
     }
 }

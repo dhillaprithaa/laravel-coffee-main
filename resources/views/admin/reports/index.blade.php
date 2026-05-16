@@ -1,4 +1,5 @@
 @php
+  use Carbon\Carbon;
   use App\Enums\RoleType;
   use App\Enums\OrderType;
   use App\Enums\OrderStatus;
@@ -18,12 +19,16 @@
   <form method="GET" action="{{ route('admin.reports.index') }}" id="filterForm">
     @if (Auth::user()->role === RoleType::PIMPINAN)
       <div class="filter-bar mb-4">
-        <label><i class="fas fa-calendar-alt mr-2"></i>Filter Bulan:</label>
-        <input type="month" name="bulan" value="{{ $bulan }}"
+        <label><i class="fas fa-calendar-start mr-2"></i>Dari:</label>
+        <input type="date" name="start" value="{{ $start }}"
+          onchange="document.getElementById('filterForm').submit()">
+        <label style="margin-left:1.5rem;"><i class="fas fa-calendar-end mr-2"></i>Sampai:</label>
+        <input type="date" name="end" value="{{ $end }}"
           onchange="document.getElementById('filterForm').submit()">
         <span style="color:#aaa; font-size:.85rem; margin-left:auto;">
           Menampilkan data:
-          <strong style="color:#4e2a04;">{{ \Carbon\Carbon::parse($bulan)->translatedFormat('F Y') }}</strong>
+          <strong style="color:#4e2a04;">{{ Carbon::parse($start)->format('d M Y') }} —
+            {{ Carbon::parse($end)->format('d M Y') }}</strong>
         </span>
       </div>
     @endif
@@ -56,12 +61,12 @@
           oninput="clearTimeout(window._st); window._st = setTimeout(() => document.getElementById('filterForm').submit(), 400)">
 
         @if (array_filter($filters))
-          <a href="{{ route('admin.reports.index', ['bulan' => $bulan]) }}" class="btn-filter">
+          <a href="{{ route('admin.reports.index') }}" class="btn-filter">
             <i class="fas fa-times mr-1"></i>Reset
           </a>
         @endif
 
-        <a href="{{ route('admin.reports.export', array_merge(['bulan' => $bulan], array_filter($filters))) }}"
+        <a href="{{ route('admin.reports.export', array_merge(['bulan' => $start], array_filter($filters))) }}"
           class="btn-export">
           <i class="fas fa-file-pdf mr-1"></i>Export Data
         </a>
@@ -79,7 +84,7 @@
             <div class="stat-value">Rp{{ number_format($totalRevenue, 0, ',', '.') }}</div>
             <div class="stat-trend {{ $revenueGrowth >= 0 ? 'trend-up' : 'trend-down' }}">
               <i class="fas fa-arrow-{{ $revenueGrowth >= 0 ? 'up' : 'down' }} mr-1"></i>
-              {{ abs($revenueGrowth) }}% vs bulan lalu
+              {{ abs($revenueGrowth) }}% vs periode lalu
             </div>
           </div>
         </div>
@@ -106,7 +111,7 @@
             <div class="stat-value">{{ $monthly }}</div>
             <div class="stat-trend {{ $ordersGrowth >= 0 ? 'trend-up' : 'trend-down' }}">
               <i class="fas fa-arrow-{{ $ordersGrowth >= 0 ? 'up' : 'down' }} mr-1"></i>
-              {{ abs($ordersGrowth) }}% vs bulan lalu
+              {{ abs($ordersGrowth) }}% vs periode lalu
             </div>
           </div>
         </div>
@@ -136,15 +141,14 @@
       <div class="col-lg-4">
         <div class="card" style="border-radius:14px; overflow:hidden;">
           <div class="table-card-header">
-            <h5><i class="fas fa-chart-bar mr-2"></i>Pendapatan Harian —
-              {{ \Carbon\Carbon::parse($bulan)->translatedFormat('F Y') }}</h5>
+            <h5><i class="fas fa-chart-bar mr-2"></i>Pendapatan Harian</h5>
           </div>
           <div class="card-body" style="height: 18rem;">
             @if ($daily->count() > 0)
               <canvas id="chartRevenue"></canvas>
             @else
               <div class="text-center text-muted py-5">
-                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>Tidak ada pesanan di bulan ini.
+                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>Tidak ada pesanan di periode ini.
               </div>
             @endif
           </div>
@@ -153,15 +157,14 @@
       <div class="col-lg-4">
         <div class="card" style="border-radius:14px; overflow:hidden;">
           <div class="table-card-header">
-            <h5><i class="fas fa-chart-line mr-2"></i>Jumlah Order Harian —
-              {{ \Carbon\Carbon::parse($bulan)->translatedFormat('F Y') }}</h5>
+            <h5><i class="fas fa-chart-line mr-2"></i>Jumlah Order Harian</h5>
           </div>
           <div class="card-body" style="height: 18rem;">
             @if ($daily->count() > 0)
               <canvas id="chartOrders"></canvas>
             @else
               <div class="text-center text-muted py-5">
-                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>Tidak ada pesanan di bulan ini.
+                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>Tidak ada pesanan di periode ini.
               </div>
             @endif
           </div>
@@ -307,10 +310,10 @@
 @endsection
 
 @push('scripts')
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="{{ asset('plugins/chart.js/Chart.bundle.min.js') }}"></script>
   @if (Auth::user()->role === RoleType::PIMPINAN)
     <script>
-      const labels = {!! json_encode($daily->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d M'))) !!};
+      const labels = {!! json_encode($daily->pluck('date')->map(fn($d) => Carbon::parse($d)->format('d M'))) !!};
       const revenue = {!! json_encode($daily->pluck('total')) !!};
       const counts = {!! json_encode($daily->pluck('count')) !!};
 

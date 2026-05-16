@@ -47,11 +47,6 @@
             <a class="dropdown-item" href="{{ route('admin.profile.edit') }}">
               <i class="fas fa-lock me-2 text-warning"></i> Ubah Password
             </a>
-            @can('viewAny', \App\Models\User::class)
-              <a class="dropdown-item" href="{{ route('admin.staff.index') }}">
-                <i class="fas fa-users me-2 text-warning"></i> Kelola Pengguna
-              </a>
-            @endcan
             <div class="dropdown-divider"></div>
             <form action="{{ route('auth.logout') }}" method="POST">
               @csrf
@@ -109,7 +104,7 @@
                 <p>Kasir / POS</p>
               </a>
             </li>
-            @php $antrianCount = \App\Models\Order::whereIn('status',['pending','diproses'])->count(); @endphp
+            @php $antrianCount = \App\Models\Order::whereIn('status_pesanan',['pending','diproses'])->count(); @endphp
             <li class="nav-item">
               <a href="{{ route('admin.orders.queue') }}"
                 class="nav-link {{ request()->routeIs('admin.antrian') ? 'active' : '' }}">
@@ -166,7 +161,7 @@
                 <a href="{{ route('admin.staff.index') }}"
                   class="nav-link {{ request()->routeIs('admin.staff.*') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-users"></i>
-                  <p>Staff</p>
+                  <p>Kelola Pengguna</p>
                 </a>
               </li>
             @endcan

@@ -9,8 +9,10 @@ use App\Models\OrderItem;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -28,34 +30,40 @@ class ReportController extends Controller
     }
 
     /**
-     * Full monthly report with analytics for pimpinan.
+     * Full report with analytics for pimpinan.
      */
     private function pimpinanReport(Request $request): View
     {
-        $bulan = $request->input('bulan', now()->format('Y-m'));
-        [$year, $month] = explode('-', $bulan);
-        [$prevYear, $prevMonth] = $this->previousMonth($year, $month);
+        $defaultStart = now()->startOfMonth()->format('Y-m-d');
+        $defaultEnd = now()->endOfMonth()->format('Y-m-d');
 
-        $base = Order::inMonth($year, $month)
-            ->when($request->type,    fn($q) => $q->whereType($request->type))
-            ->when($request->status,  fn($q) => $q->where('status', $request->status))
-            ->when($request->method,  fn($q) => $q->whereHas('payment', fn($p) => $p->where('method', $request->method)))
-            ->when($request->invoice, fn($q) => $q->where('invoice', 'like', '%' . $request->invoice . '%'));
+        $start = $request->input('start', $defaultStart);
+        $end = $request->input('end', $defaultEnd);
 
-        $totalOrders  = (clone $base)->count();
+        $days = Carbon::parse($start)->diffInDays(Carbon::parse($end));
+        $prevEnd = Carbon::parse($start)->subDay()->format('Y-m-d');
+        $prevStart = Carbon::parse($prevEnd)->subDays($days)->format('Y-m-d');
+
+        $base = Order::whereInRange($start, $end)
+            ->when($request->type, fn($q) => $q->whereType($request->type))
+            ->when($request->status, fn($q) => $q->whereStatus($request->status))
+            ->when($request->method, fn($q) => $q->wherePayment($request->method))
+            ->when($request->invoice, fn($q) => $q->whereInvoice($request->invoice));
+
+        $totalOrders = (clone $base)->count();
         $totalRevenue = (clone $base)->sum('grand_total');
-        $orderIds     = (clone $base)->pluck('id');
+        $orderIds = (clone $base)->pluck('id');
 
         $daily = (clone $base)
-            ->select(DB::raw('DATE(created_at) as tanggal'), DB::raw('SUM(grand_total) as total'), DB::raw('COUNT(*) as count'))
-            ->groupBy('tanggal')
-            ->orderBy('tanggal')
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(grand_total) as total'), DB::raw('COUNT(*) as count'))
+            ->groupBy('date')
+            ->orderBy('date')
             ->get();
 
-        $paymentBreakdown = Order::inMonth($year, $month)
-            ->when($request->type,    fn($q) => $q->whereType($request->type))
-            ->when($request->status,  fn($q) => $q->where('status', $request->status))
-            ->when($request->invoice, fn($q) => $q->where('invoice', 'like', '%' . $request->invoice . '%'))
+        $paymentBreakdown = Order::whereInRange($start, $end)
+            ->when($request->type, fn($q) => $q->whereType($request->type))
+            ->when($request->status, fn($q) => $q->whereStatus($request->status))
+            ->when($request->invoice, fn($q) => $q->whereInvoice($request->invoice))
             ->select('id')
             ->with('payment:order_id,method')
             ->get()
@@ -63,23 +71,27 @@ class ReportController extends Controller
             ->map(fn($group) => $group->count())
             ->sortDesc();
 
+        $prevRevenue = Order::whereInRange($prevStart, $prevEnd)->sum('grand_total');
+        $prevOrders = Order::whereInRange($prevStart, $prevEnd)->count();
+
         return view('admin.reports.index', [
-            'bulan'             => $bulan,
-            'monthly'           => $totalOrders,
-            'totalRevenue'      => $totalRevenue,
+            'start' => $start,
+            'end' => $end,
+            'monthly' => $totalOrders,
+            'totalRevenue' => $totalRevenue,
             'averageOrderValue' => $totalOrders > 0 ? round($totalRevenue / $totalOrders) : 0,
-            'selfOrder'         => (clone $base)->whereType(OrderType::SELF)->count(),
-            'normalOrder'       => (clone $base)->whereType(OrderType::KASIR)->count(),
-            'daily'             => $daily,
-            'orders'            => (clone $base)->with(['payment', 'table', 'user'])->latest()->paginate(10)->withQueryString(),
-            'bestSellers'       => $this->bestSellers($orderIds, desc: true, limit: 3),
-            'worstSellers'      => $this->bestSellers($orderIds, desc: false, limit: 3),
-            'paymentBreakdown'  => $paymentBreakdown,
-            'prevRevenue'       => Order::inMonth($prevYear, $prevMonth)->sum('grand_total'),
-            'prevOrders'        => Order::inMonth($prevYear, $prevMonth)->count(),
-            'revenueGrowth'     => $this->growthRate(Order::inMonth($prevYear, $prevMonth)->sum('grand_total'), $totalRevenue),
-            'ordersGrowth'      => $this->growthRate(Order::inMonth($prevYear, $prevMonth)->count(), $totalOrders),
-            'filters'           => $this->filters($request),
+            'selfOrder' => (clone $base)->whereType(OrderType::SELF)->count(),
+            'normalOrder' => (clone $base)->whereType(OrderType::KASIR)->count(),
+            'daily' => $daily,
+            'orders' => (clone $base)->with(['payment', 'table', 'user'])->latest()->paginate(10)->withQueryString(),
+            'bestSellers' => $this->bestSellers($orderIds, desc: true, limit: 3),
+            'worstSellers' => $this->bestSellers($orderIds, desc: false, limit: 3),
+            'paymentBreakdown' => $paymentBreakdown,
+            'prevRevenue' => $prevRevenue,
+            'prevOrders' => $prevOrders,
+            'revenueGrowth' => $this->growthRate($prevRevenue, $totalRevenue),
+            'ordersGrowth' => $this->growthRate($prevOrders, $totalOrders),
+            'filters' => $this->filters($request),
         ]);
     }
 
@@ -88,20 +100,25 @@ class ReportController extends Controller
      */
     private function staffReport(Request $request): View
     {
-        $today  = today();
+        $today = today()->format('Y-m-d');
         $orders = Order::whereDate('created_at', $today)
-            ->when($request->type,    fn($q) => $q->whereType($request->type))
-            ->when($request->status,  fn($q) => $q->where('status', $request->status))
-            ->when($request->method,  fn($q) => $q->whereHas('payment', fn($p) => $p->where('method', $request->method)))
-            ->when($request->invoice, fn($q) => $q->where('invoice', 'like', '%' . $request->invoice . '%'))
-            ->with(['payment', 'table', 'user'])
+            ->when($request->type, fn($q) => $q->whereType($request->type))
+            ->when($request->status, fn($q) => $q->whereStatus($request->status))
+            ->when($request->method, fn($q) => $q->wherePayment($request->method))
+            ->when($request->invoice, fn($q) => $q->whereInvoice($request->invoice))
+            ->with([
+                'payment',
+                'table',
+                'user'
+            ])
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
         return view('admin.reports.index', [
-            'bulan'   => now()->format('Y-m'),
-            'orders'  => $orders,
+            'start' => $today,
+            'end' => $today,
+            'orders' => $orders,
             'filters' => $this->filters($request),
         ]);
     }
@@ -109,20 +126,19 @@ class ReportController extends Controller
     /**
      * Export filtered orders as PDF.
      */
-    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function export(Request $request): StreamedResponse
     {
-        $bulan = Auth::user()->role === RoleType::PIMPINAN
-            ? $request->input('bulan', now()->format('Y-m'))
-            : now()->format('Y-m');
+        $defaultStart = now()->startOfMonth()->format('Y-m-d');
+        $defaultEnd = now()->endOfMonth()->format('Y-m-d');
+        $start = $request->input('start', $defaultStart);
+        $end = $request->input('end', $defaultEnd);
 
-        [$year, $month] = explode('-', $bulan);
-
-        $orders = Order::inMonth($year, $month)
+        $orders = Order::whereInRange($start, $end)
             ->with(['payment', 'table', 'user'])
-            ->when($request->type,    fn($q) => $q->whereType($request->type))
-            ->when($request->status,  fn($q) => $q->where('status', $request->status))
-            ->when($request->method,  fn($q) => $q->whereHas('payment', fn($p) => $p->where('method', $request->method)))
-            ->when($request->invoice, fn($q) => $q->where('invoice', 'like', '%' . $request->invoice . '%'))
+            ->when($request->type, fn($q) => $q->whereType($request->type))
+            ->when($request->status, fn($q) => $q->whereStatus($request->status))
+            ->when($request->method, fn($q) => $q->wherePayment($request->method))
+            ->when($request->invoice, fn($q) => $q->whereInvoice($request->invoice))
             ->latest()
             ->get();
 
@@ -145,13 +161,13 @@ class ReportController extends Controller
             }
 
             fclose($handle);
-        }, 'laporan-' . $bulan . '.csv', ['Content-Type' => 'text/csv']);
+        }, 'laporan-' . $start . '_' . $end . '.csv', ['Content-Type' => 'text/csv']);
     }
 
     /**
      * Get best or worst selling order items for a set of order IDs.
      */
-    private function bestSellers(\Illuminate\Support\Collection $orderIds, bool $desc, int $limit): \Illuminate\Support\Collection
+    private function bestSellers(Collection $orderIds, bool $desc, int $limit): Collection
     {
         $query = OrderItem::whereIn('order_id', $orderIds)
             ->select('menu_id', DB::raw('SUM(qty) as total_qty'), DB::raw('SUM(subtotal) as total_revenue'))
@@ -174,24 +190,17 @@ class ReportController extends Controller
     }
 
     /**
-     * Get the previous month's year and month number.
-     */
-    private function previousMonth(string $year, string $month): array
-    {
-        $date = Carbon::createFromDate($year, $month, 1)->subMonth();
-        return [$date->format('Y'), $date->format('m')];
-    }
-
-    /**
      * Extract filter inputs from the request.
      */
-    private function filters(Request $request): array
+    private function filters(Request $request, string $default = ''): array
     {
         return [
-            'type'    => $request->input('type', ''),
-            'status'  => $request->input('status', ''),
-            'method'  => $request->input('method', ''),
-            'invoice' => $request->input('invoice', ''),
+            'type' => $request->input('type', $default),
+            'status' => $request->input('status', $default),
+            'method' => $request->input('method', $default),
+            'invoice' => $request->input('invoice', $default),
+            'start' => $request->input('start', $default),
+            'end' => $request->input('end', $default),
         ];
     }
 }

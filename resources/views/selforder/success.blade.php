@@ -499,8 +499,11 @@
       </div>
       <div class="table-info">
         <i class="fas fa-chair"></i>
-        <span>Meja {{ $order->table->number }}</span>
-        &nbsp;·
+        @if ($order->table)
+          <span>Meja {{ $order->table->number }}</span>
+          <span>&nbsp;·</span>
+        @endif
+
         <span style="color: rgba(255,255,255,.5); font-size:.82rem;">
           {{ $order->items->sum('qty') }} item dipesan
         </span>
@@ -582,10 +585,12 @@
       </div>
     @endif
     <div class="btn-wrap">
-      <a href="{{ route('selforder.show', $order->table->number ?? 1) }}" class="btn-back">
-        <i class="fas fa-plus-circle" style="margin-right:8px;"></i>
-        Pesan Lagi
-      </a>
+      @if ($order->table)
+        <a href="{{ route('selforder.show', $order->table->id) }}" class="btn-back">
+          <i class="fas fa-plus-circle" style="margin-right:8px;"></i>
+          Pesan Lagi
+        </a>
+      @endif
     </div>
     <div style="margin-top:30px; text-align:center; color:rgba(255,255,255,.3); font-size:.75rem;">
       <i class="fas fa-coffee" style="margin-right:5px;"></i>

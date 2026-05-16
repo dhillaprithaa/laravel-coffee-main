@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class StoreTableRequest extends FormRequest
 {
@@ -23,7 +24,13 @@ class StoreTableRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'number' => ['required', 'integer', 'min:1', 'unique:tables,number'],
+            'number' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:255',
+                Rule::unique('tables', 'number'),
+            ],
         ];
     }
 

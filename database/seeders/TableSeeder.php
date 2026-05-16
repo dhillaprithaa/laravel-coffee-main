@@ -15,10 +15,8 @@ class TableSeeder extends Seeder
      */
     public function run(): void
     {
-        $count = range(1, 10);
-        $tables = collect($count)->map(fn($index) => [
-            'number' => $index,
-        ])->toArray();
-        Table::insert($tables);
+        foreach (range(1, 10) as $number) {
+            Table::create(['number' => $number]);
+        }
     }
 }

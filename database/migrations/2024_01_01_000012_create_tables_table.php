@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tables', function (Blueprint $table) {
-            $table->id();
-            $table->integer('number')->unique();
+            $table->ulid('id')->primary();
+            $table->unsignedTinyInteger('number')->unique();
             $table->timestamps();
         });
     }

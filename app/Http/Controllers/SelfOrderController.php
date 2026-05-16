@@ -27,10 +27,9 @@ class SelfOrderController extends Controller
     /**
      * Display the self-ordering menu for a table.
      */
-    public function show(int $number): View
+    public function show(Table $table): View
     {
-        $table = Table::where('number', $number)->firstOrFail();
-        $menus = Menu::orderBy('category')->get();
+        $menus = Menu::query()->orderBy('category', 'asc')->get();
         $categories = $menus->groupBy('category');
 
         return view('selforder.show', [

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class OrderItem extends Model
 {
+    use HasUlids;
     /**
      * The attributes that are mass assignable.
      */
@@ -16,6 +18,14 @@ class OrderItem extends Model
         'price',
         'subtotal',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'subtotal' => 'decimal:2',
+        ];
+    }
 
     /**
      * OrderItem belongs to order.

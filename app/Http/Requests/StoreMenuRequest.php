@@ -3,9 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Enums\MenuCategory;
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class StoreMenuRequest extends FormRequest
 {
@@ -25,9 +25,9 @@ class StoreMenuRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:50'],
             'category' => ['required', new Enum(MenuCategory::class)],
-            'price' => ['required', 'integer', 'min:0'],
+            'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
         ];
     }

@@ -14,14 +14,14 @@ return new class extends Migration
             $types = OrderType::values();
             $status = OrderStatus::values();
 
-            $table->id();
-            $table->string('invoice')->unique();
-            $table->integer('grand_total')->default(0);
+            $table->ulid('id')->primary();
+            $table->string('invoice', 50)->unique();
+            $table->decimal('grand_total', 12, 2)->default(0);
             $table->enum('type', $types)->default(OrderType::KASIR);
             $table->enum('status', $status)->default(OrderStatus::PENDING);
 
-            $table->foreignId('table_id')->nullable()->constrained('tables')->nullOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUlid('table_id')->nullable()->constrained('tables')->nullOnDelete();
+            $table->foreignUlid('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

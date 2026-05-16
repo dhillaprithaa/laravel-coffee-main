@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class UpdateStaffRequest extends FormRequest
 {
@@ -23,8 +24,13 @@ class UpdateStaffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100'],
-            'username' => ['required', 'string', 'max:100', 'unique:users,username,'.$this->staff->id],
+            'name' => ['required', 'string', 'max:50'],
+            'username' => [
+                'required',
+                'string',
+                'max:16',
+                Rule::unique('users', 'username')->ignore($this->staff->id),
+            ],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
         ];
     }

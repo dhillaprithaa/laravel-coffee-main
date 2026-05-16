@@ -1,0 +1,188 @@
+:root {
+    --coffee-dark: #1a0a00;
+    --coffee-brown: #4e2a04;
+    --coffee-medium: #7b4a1e;
+    --coffee-light: #c8a97a;
+    --coffee-cream: #f5ebe0;
+    --accent-gold: #d4a843;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #f4f2ee;
+}
+
+.main-header.navbar {
+    background: linear-gradient(
+        135deg,
+        var(--coffee-dark) 0%,
+        var(--coffee-brown) 100%
+    );
+    border-bottom: 2px solid var(--accent-gold);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.main-header .navbar-brand {
+    color: var(--accent-gold) !important;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.main-header .nav-link {
+    color: var(--coffee-cream) !important;
+}
+
+.main-sidebar {
+    background: linear-gradient(180deg, var(--coffee-dark) 0%, #2d1200 100%);
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.4);
+}
+
+.brand-link {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(212, 168, 67, 0.3) !important;
+    padding: 12px 16px !important;
+}
+
+.brand-image {
+    color: var(--accent-gold);
+}
+
+.brand-link .brand-text {
+    color: var(--accent-gold) !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: "Poppins", sans-serif;
+}
+
+.user-panel {
+    border-bottom: 1px solid rgba(212, 168, 67, 0.2) !important;
+    padding: 12px !important;
+}
+
+.user-panel .image {
+    padding-left: 0 !important;
+}
+
+.user-panel .info a {
+    color: var(--coffee-cream) !important;
+    font-weight: 500;
+}
+
+.sidebar-menu > li > .nav-link {
+    color: rgba(245, 235, 224, 0.75) !important;
+    border-radius: 8px !important;
+    transition: all 0.25s ease !important;
+    overflow: hidden;
+}
+
+.sidebar-menu > li > .nav-link:hover,
+.sidebar-menu > li.menu-open > .nav-link,
+.sidebar-menu > li > .nav-link.active {
+    background: linear-gradient(
+        135deg,
+        rgba(212, 168, 67, 0.25),
+        rgba(212, 168, 67, 0.1)
+    ) !important;
+
+    color: var(--accent-gold) !important;
+    /* border-left: 3px solid var(--accent-gold) !important; */
+}
+
+.sidebar-menu > li > .nav-link:hover::before,
+.sidebar-menu > li.menu-open > .nav-link::before,
+.sidebar-menu > li > .nav-link.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-gold);
+}
+
+.sidebar-menu > li > .nav-link .nav-icon {
+    color: var(--coffee-light) !important;
+}
+
+.sidebar-menu > li > .nav-link.active .nav-icon,
+.sidebar-menu > li > .nav-link:hover .nav-icon {
+    color: var(--accent-gold) !important;
+}
+
+.content-wrapper {
+    background-color: #f4f2ee !important;
+}
+
+.content-header h1 {
+    font-weight: 700;
+    color: var(--coffee-dark);
+}
+
+.breadcrumb-item.active {
+    color: var(--coffee-medium);
+}
+
+.card {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    border: none !important;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600 !important;
+}
+
+.small-box {
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.small-box .inner h3 {
+    font-weight: 700;
+}
+
+.main-footer {
+    background: white;
+    border-top: 2px solid var(--coffee-cream);
+    color: var(--coffee-medium);
+    font-size: 0.85rem;
+}
+
+.btn-coffee {
+    background: linear-gradient(
+        135deg,
+        var(--coffee-brown),
+        var(--coffee-medium)
+    );
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.btn-coffee:hover {
+    background: linear-gradient(
+        135deg,
+        var(--coffee-dark),
+        var(--coffee-brown)
+    );
+    color: var(--accent-gold);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-gold {
+    background: linear-gradient(135deg, var(--accent-gold), #b8860b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-gold:hover {
+    opacity: 0.9;
+    color: white;
+}

@@ -1,0 +1,116 @@
+.table-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.table-card-header {
+    background: linear-gradient(135deg, #4e2a04, #7b4a1e);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-card-header h5 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.tbl th {
+    background: #f5ebe0;
+    color: #4e2a04;
+    font-weight: 700;
+    border-top: none;
+}
+
+.meja-num {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #4e2a04;
+}
+
+.qr-preview {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 2px solid #f0e8df;
+}
+
+.qr-placeholder {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 2px dashed #e0d5c8;
+    color: #ccc;
+    font-size: 1.5rem;
+}
+
+.action-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.btn-del {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.btn-del:hover {
+    background: #842029;
+    color: white;
+}
+
+.add-meja-form {
+    background: #faf8f5;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #f0e8df;
+}
+
+.gen-qr-card {
+    background: linear-gradient(135deg, #1a0a00, #4e2a04);
+    border-radius: 14px;
+    color: white;
+    padding: 20px 24px;
+}
+
+.gen-qr-card h6 {
+    color: #d4a843;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.btn-gen {
+    background: #d4a843;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-gen:hover {
+    background: #b8860b;
+    transform: translateY(-1px);
+}
+
+.qrcode canvas,
+.qrcode img {
+    width: 3rem;
+    height: 3rem;
+    display: block;
+}

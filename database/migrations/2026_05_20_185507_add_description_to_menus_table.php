@@ -1,22 +1,79 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Models;
 
-return new class extends Migration
+use App\Traits\HasImage;
+use App\Enums\MenuCategory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+
+class Menu extends Model
 {
-    public function up(): void
+    use HasUlids, HasImage;
+
+    protected $fillable = [
+        'name',
+        'category',
+        'price',
+        'stock',
+        'description',
+        'image',
+    ];
+
+    /**
+     * Image columns and their storage config.
+     */
+    public function images(): array
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->text('description')->nullable();
-        });
+        return [
+            'image' => ['disk' => 'public', 'folder' => 'menus'],
+        ];
     }
 
-    public function down(): void
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected function casts(): array
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->dropColumn('description');
-        });
+        return [
+            'category' => MenuCategory::class,
+            'price' => 'decimal:2',
+        ];
     }
-};
+
+    /**
+     * Get the full URL for the image column, or null if empty.
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->getImageUrl('image');
+    }
+
+    /**
+     * Custom attributes to check if the item is instock
+     */
+    protected function available(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->stock > 0,
+        );
+    }
+
+    /**
+     * Order has many order items.
+     */
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Scope for menus with available stock.
+     */
+    public function scopeInstock(Builder $query): Builder
+    {
+        return $query->where('stock', '>', 0);
+    }
+}

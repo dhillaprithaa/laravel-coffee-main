@@ -37,9 +37,16 @@
             <div class="menu-card {{ !$menu->available ? 'out-of-stock' : '' }}" data-id="{{ $menu->id }}"
               data-name="{{ $menu->name }}" data-price="{{ $menu->price }}" data-category="{{ $menu->category }}"
               data-stock="{{ $menu->stock }}" onclick="addToCart(this)">
-              <div class="menu-card-img">{{ $menu->category->emoji() }}</div>
+              <div class="menu-card-img">
+                @if ($menu->image)
+                  <img src="{{ $menu->image_url }}" alt="{{ $menu->name }}">
+                @else
+                  {{ $menu->category->emoji() }}
+                @endif
+              </div>
               <div class="menu-card-body">
                 <p class="menu-card-name">{{ $menu->name }}</p>
+                <p class="menu-card-desc">{{ $menu->description ?? '' }}</p>
                 <p class="menu-card-price">Rp {{ number_format($menu->price, 0, ',', '.') }}</p>
                 <p class="menu-card-stock">{{ $menu->stock }}</p>
               </div>

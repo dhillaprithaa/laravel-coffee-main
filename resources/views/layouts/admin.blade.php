@@ -1,5 +1,9 @@
 @php
+  use App\Models\Order;
   use App\Enums\RoleType;
+  use App\Enums\OrderStatus;
+
+  $antrianCount = Order::whereIn('status', [OrderStatus::PENDING, OrderStatus::DIPROSES])->count();
 @endphp
 
 <!DOCTYPE html>
@@ -104,7 +108,6 @@
                 <p>Kasir / POS</p>
               </a>
             </li>
-            @php $antrianCount = \App\Models\Order::whereIn('status_pesanan',['pending','diproses'])->count(); @endphp
             <li class="nav-item">
               <a href="{{ route('admin.orders.queue') }}"
                 class="nav-link {{ request()->routeIs('admin.antrian') ? 'active' : '' }}">

@@ -22,18 +22,21 @@ class MenuSeeder extends Seeder
                 'category' => MenuCategory::MINUMAN,
                 'price' => 18000,
                 'stock' => 50,
+                'description' => 'Es kopi susu dengan campuran gula aren dan susu segar.',
             ],
             [
                 'name' => 'Americano',
                 'category' => MenuCategory::MINUMAN,
                 'price' => 15000,
                 'stock' => 50,
+                'description' => 'Espresso klasik dengan tambahan air panas.',
             ],
             [
                 'name' => 'Roti Bakar',
                 'category' => MenuCategory::MAKANAN,
                 'price' => 12000,
                 'stock' => 30,
+                'description' => 'Roti tawar panggang dengan olesan mentega dan gula.',
             ],
         ];
 

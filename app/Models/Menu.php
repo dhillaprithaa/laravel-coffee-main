@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasImage;
 use App\Enums\MenuCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,16 +11,26 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Menu extends Model
 {
-    use HasUlids;
-    /**
-     * The attributes that are mass assignable.
-     */
+    use HasUlids, HasImage;
+
     protected $fillable = [
         'name',
         'category',
         'price',
         'stock',
+        'description',
+        'image',
     ];
+
+    /**
+     * Image columns and their storage config.
+     */
+    public function images(): array
+    {
+        return [
+            'image' => ['disk' => 'public', 'folder' => 'menus'],
+        ];
+    }
 
     /**
      * The attributes that should be cast to native types.
@@ -30,6 +41,14 @@ class Menu extends Model
             'category' => MenuCategory::class,
             'price' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Get the full URL for the image column, or null if empty.
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->getImageUrl('image');
     }
 
     /**

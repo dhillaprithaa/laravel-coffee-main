@@ -29,6 +29,8 @@ class UpdateMenuRequest extends FormRequest
             'category' => ['required', new Enum(MenuCategory::class)],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
+            'description' => ['nullable', 'string', 'max:255'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 }

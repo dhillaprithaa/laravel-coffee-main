@@ -45,7 +45,13 @@ class MenuController extends Controller
      */
     public function store(StoreMenuRequest $request): RedirectResponse
     {
-        $menu = Menu::create($request->validated());
+        $menu = Menu::create($request->safe()->except('image'));
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $menu->uploadImage($file, 'image');
+            $menu->save();
+        }
 
         return redirect()->route('admin.menus.index')
             ->with('success', "Menu {$menu->name} berhasil ditambahkan!");
@@ -64,7 +70,13 @@ class MenuController extends Controller
      */
     public function update(UpdateMenuRequest $request, Menu $menu): RedirectResponse
     {
-        $menu->update($request->validated());
+        $menu->update($request->safe()->except('image'));
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $menu->updateImage($file, 'image');
+            $menu->save();
+        }
 
         return redirect()
             ->route('admin.menus.index')

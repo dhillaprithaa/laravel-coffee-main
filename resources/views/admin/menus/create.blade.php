@@ -21,7 +21,7 @@
               </ul>
             </div>
           @endif
-          <form method="POST" action="{{ route('admin.menus.store') }}">
+          <form method="POST" action="{{ route('admin.menus.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="mb-4">
               <label class="form-label">Nama Menu</label>
@@ -42,6 +42,15 @@
                   </div>
                 @endforeach
               </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Deskripsi</label>
+              <textarea name="description" class="form-control-custom" rows="3"
+                placeholder="Deskripsi menu...">{{ old('description') }}</textarea>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Gambar Menu</label>
+              <input type="file" name="image" class="form-control-custom" accept="image/jpg,image/jpeg,image/png,image/webp">
             </div>
             <div class="row mb-4">
               <div class="col-6">

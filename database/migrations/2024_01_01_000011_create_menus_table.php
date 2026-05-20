@@ -17,6 +17,8 @@ return new class extends Migration
             $table->enum('category', $categories);
             $table->decimal('price', 12, 2);
             $table->unsignedInteger('stock')->default(0);
+            $table->string('description', 255)->nullable();
+            $table->string('image')->nullable();
 
             $table->timestamps();
         });

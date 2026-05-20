@@ -63,7 +63,11 @@
             data-category="{{ $cat }}" data-stock="{{ $menu->stock }}">
 
             <div class="menu-thumb">
-              <span>{{ $cat->emoji() }}</span>
+              @if ($menu->image)
+                <img src="{{ $menu->image_url }}" alt="{{ $menu->name }}">
+              @else
+                <span>{{ $cat->emoji() }}</span>
+              @endif
               @if (!$menu->available)
                 <div class="badge-stock-out">HABIS</div>
               @endif
@@ -71,6 +75,7 @@
 
             <div class="menu-info">
               <div class="menu-name">{{ $menu->name }}</div>
+              <div class="menu-desc">{{ $menu->description ?? '' }}</div>
               <div class="menu-category">{{ $menu->category->label() }}</div>
               <div class="menu-price">Rp {{ number_format($menu->price, 0, ',', '.') }}</div>
               <div

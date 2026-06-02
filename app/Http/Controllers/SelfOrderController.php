@@ -14,6 +14,7 @@ use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -150,9 +151,24 @@ class SelfOrderController extends Controller
                 'price' => $item['menu']->price,
                 'subtotal' => $item['subtotal'],
             ]);
-
-            $item['menu']->decrement('stock', $item['qty']);
         }
+    }
+
+    /**
+     * Update menu stock in real-time (called from frontend when +/- is clicked).
+     */
+    public function updateStock(Request $request, Menu $menu): JsonResponse
+    {
+        $request->validate([
+            'qty' => 'required|integer|min:0',
+        ]);
+
+        $menu->update(['stock' => $request->qty]);
+
+        return response()->json([
+            'success' => true,
+            'stock' => $menu->fresh()->stock,
+        ]);
     }
 
     /**

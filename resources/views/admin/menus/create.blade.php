@@ -54,12 +54,12 @@
             </div>
             <div class="row mb-4">
               <div class="col-6">
-                <label class="form-label">price (Rp)</label>
+                <label class="form-label">Price (Rp)</label>
                 <input type="number" name="price" class="form-control-custom" value="{{ old('price') }}"
                   placeholder="15000" min="0" required>
               </div>
               <div class="col-6">
-                <label class="form-label">stock Awal</label>
+                <label class="form-label">Stock Awal</label>
                 <input type="number" name="stock" class="form-control-custom" value="{{ old('stock', 50) }}"
                   placeholder="50" min="0" required>
               </div>

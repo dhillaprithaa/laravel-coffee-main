@@ -94,6 +94,7 @@ Route::prefix('/selforder')
         Route::get('/success/{invoice}', [SelfOrderController::class, 'success'])->name('success');
         Route::get('/{table}', [SelfOrderController::class, 'show'])->name('show');
         Route::post('/checkout', [SelfOrderController::class, 'checkout'])->name('checkout');
+        Route::patch('/menu/{menu}/stock', [SelfOrderController::class, 'updateStock'])->name('updateStock');
     });
 
 Route::prefix('midtrans')

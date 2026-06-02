@@ -78,7 +78,7 @@
               <div class="menu-desc">{{ $menu->description ?? '' }}</div>
               <div class="menu-category">{{ $menu->category->label() }}</div>
               <div class="menu-price">Rp {{ number_format($menu->price, 0, ',', '.') }}</div>
-              <div
+              <div id="stock-{{ $menu->id }}"
                 class="menu-stock {{ $menu->stock <= 0 ? 'stock-out' : ($menu->stock <= 5 ? 'stock-low' : 'stock-ok') }}">
                 stok: {{ $menu->stock }}
               </div>
@@ -216,12 +216,17 @@
 
       refreshItem(key);
       updateCartBar();
+
+      const newStock = stockMap[key] - 1;
+      stockMap[key] = newStock;
+      syncStock(menuId, newStock);
     }
 
     function cartDecrement(menuId) {
       const key = String(menuId);
       if (!cart[key]) return;
 
+      const oldCartQty = cart[key].qty;
       cart[key].qty--;
       if (cart[key].qty <= 0) {
         const name = cart[key].name;
@@ -231,6 +236,29 @@
 
       refreshItem(key);
       updateCartBar();
+
+      stockMap[key] = stockMap[key] + oldCartQty - (cart[key] ? cart[key].qty : 0);
+      syncStock(menuId, stockMap[key]);
+    }
+
+    function syncStock(menuId, qty) {
+      fetch(`/selforder/menu/${menuId}/stock`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': CSRF_TOKEN,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ qty: qty }),
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          const stockEl = document.getElementById('stock-' + menuId);
+          if (stockEl) {
+            stockEl.textContent = 'stok: ' + data.stock;
+            stockEl.className = 'menu-stock ' + (data.stock <= 0 ? 'stock-out' : (data.stock <= 5 ? 'stock-low' : 'stock-ok'));
+          }
+        }
+      }).catch(err => console.error('Stock sync failed:', err));
     }
 
     function refreshItem(menuId) {

@@ -15,7 +15,7 @@ trait HasImage
         return [
             'image' => [
                 'disk' => 'public',
-                'folder' => 'images'
+                'folder' => 'images',
             ],
         ];
     }
@@ -26,7 +26,11 @@ trait HasImage
     protected function imageConfig(string $column): ?object
     {
         $images = $this->images();
-        if (!array_key_exists($column, $images)) return null;
+
+        if (!array_key_exists($column, $images)) {
+            return null;
+        }
+
         return (object) $images[$column];
     }
 
@@ -38,6 +42,7 @@ trait HasImage
         static::deleting(function ($model) {
             $images = $model->images();
             $columns = array_keys($images);
+
             foreach ($columns as $column) {
                 $model->deleteImageFile($column);
             }
@@ -45,12 +50,19 @@ trait HasImage
     }
 
     /**
-     * Store an uploaded file and return the storage path.
+     * Store an uploaded file, set the model attribute,
+     * and return the storage path.
      */
     public function uploadImage(UploadedFile $file, string $column): string
     {
         $config = $this->imageConfig($column);
-        return $file->store($config->folder, $config->disk);
+
+        $path = $file->store($config->folder, $config->disk);
+
+        // Simpan path ke atribut model
+        $this->setAttribute($column, $path);
+
+        return $path;
     }
 
     /**
@@ -59,9 +71,8 @@ trait HasImage
     public function updateImage(UploadedFile $file, string $column): string
     {
         $this->deleteImageFile($column);
-        $path = $this->uploadImage($file, $column);
-        $this->setAttribute($column, $path);
-        return $path;
+
+        return $this->uploadImage($file, $column);
     }
 
     /**
@@ -85,7 +96,10 @@ trait HasImage
         $config = $this->imageConfig($column);
         $value = $this->getAttribute($column);
 
-        if (!$config || !$value) return null;
+        if (!$config || !$value) {
+            return null;
+        }
+
         return Storage::disk($config->disk)->url($value);
     }
 }

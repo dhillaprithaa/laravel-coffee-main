@@ -48,8 +48,12 @@ class MenuController extends Controller
         $menu = Menu::create($request->safe()->except('image'));
 
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $menu->uploadImage($file, 'image');
+            $path = $menu->uploadImage(
+                $request->file('image'),
+                'image'
+            );
+
+            $menu->image = $path;
             $menu->save();
         }
 
@@ -104,6 +108,9 @@ class MenuController extends Controller
             'stock' => $request->stock,
         ]);
 
-        return response()->json(['success' => true, 'stock' => $menu->stock]);
+        return response()->json([
+            'success' => true,
+            'stock' => $menu->stock
+        ]);
     }
 }

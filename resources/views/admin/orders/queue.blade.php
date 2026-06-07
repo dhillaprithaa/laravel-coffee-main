@@ -272,7 +272,7 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Proses...';
       }
       fetch(`${BASE}/${orderId}/status`, {
-          method: 'POST',
+          method: 'PATCH',
           headers: {
             'X-CSRF-TOKEN': CSRF,
             'Accept': 'application/json',

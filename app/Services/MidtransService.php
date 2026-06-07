@@ -36,7 +36,25 @@ class MidtransService
             $params['callbacks'] = ['finish' => $finishUrl];
         }
 
-        return Snap::getSnapToken($params);
+        try {
+            // Disable SSL verify for local development (XAMPP missing CA bundle)
+            if (!config('midtrans.is_production')) {
+                MidtransConfig::$curlOptions[CURLOPT_SSL_VERIFYHOST] = 0;
+                MidtransConfig::$curlOptions[CURLOPT_SSL_VERIFYPEER] = 0;
+            }
+
+            $token = Snap::getSnapToken($params);
+
+            if (empty($token)) {
+                throw new \RuntimeException('Midtrans Snap returned an empty token');
+            }
+
+            return $token;
+        } catch (\Midtrans_Exception $e) {
+            throw new \RuntimeException('Midtrans API error: ' . $e->getMessage(), 0, $e);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Midtrans error: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     /**

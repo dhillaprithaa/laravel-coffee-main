@@ -376,25 +376,36 @@
             showToast('❌ ' + (data.message || 'Terjadi kesalahan.'), 'error');
             return;
           }
-          if (selectedPayment === 'midtrans' && data.snap_token) {
+          if (selectedPayment === 'midtrans') {
+            if (!data.snap_token || !data.order_id) {
+              showToast('❌ Gagal memproses pembayaran. Silakan pilih metode lain.', 'error');
+              return;
+            }
             snap.pay(data.snap_token, {
               onSuccess: function(result) {
-                fetch(`/midtrans/confirm/${data.order_id}`, {
-                  method: 'POST',
-                  headers: {
-                    'Accept': 'application/json'
-                  }
-                }).finally(() => {
-                  window.location.href = '/selforder/success/' + data.invoice;
-                });
+                showLoading(true);
+                fetch('/midtrans/confirm/' + data.order_id, {
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'X-CSRF-TOKEN': CSRF_TOKEN,
+                    },
+                  })
+                  .then(r => r.json())
+                  .finally(() => {
+                    showLoading(false);
+                    window.location.href = '/selforder/success/' + data.invoice;
+                  });
               },
               onPending: function(result) {
                 window.location.href = '/selforder/success/' + data.invoice;
               },
               onError: function(result) {
+                showLoading(false);
                 showToast('❌ Pembayaran gagal.', 'error');
               },
               onClose: function() {
+                showLoading(false);
                 showToast('⚠ Kamu menutup halaman pembayaran.', 'error');
               }
             });

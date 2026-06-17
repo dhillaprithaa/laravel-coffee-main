@@ -126,21 +126,27 @@ class ReportController extends Controller
     /**
      * Export filtered orders as PDF.
      */
-    public function export(Request $request): StreamedResponse
-    {
-        $defaultStart = now()->startOfMonth()->format('Y-m-d');
-        $defaultEnd = now()->endOfMonth()->format('Y-m-d');
-        $start = $request->input('start', $defaultStart);
-        $end = $request->input('end', $defaultEnd);
+        public function export(Request $request): StreamedResponse
+        {
+            if (Auth::user()->role === RoleType::STAFF) {
+                // Staff hanya boleh export hari ini, abaikan input start/end dari request
+                $start = today()->format('Y-m-d');
+                $end = today()->format('Y-m-d');
+            } else {
+                $defaultStart = now()->startOfMonth()->format('Y-m-d');
+                $defaultEnd = now()->endOfMonth()->format('Y-m-d');
+                $start = $request->input('start', $defaultStart);
+                $end = $request->input('end', $defaultEnd);
+            }
 
-        $orders = Order::whereInRange($start, $end)
-            ->with(['payment', 'table', 'user'])
-            ->when($request->type, fn($q) => $q->whereType($request->type))
-            ->when($request->status, fn($q) => $q->whereStatus($request->status))
-            ->when($request->method, fn($q) => $q->wherePayment($request->method))
-            ->when($request->invoice, fn($q) => $q->whereInvoice($request->invoice))
-            ->latest()
-            ->get();
+            $orders = Order::whereInRange($start, $end)
+                ->with(['payment', 'table', 'user'])
+                ->when($request->type, fn($q) => $q->whereType($request->type))
+                ->when($request->status, fn($q) => $q->whereStatus($request->status))
+                ->when($request->method, fn($q) => $q->wherePayment($request->method))
+                ->when($request->invoice, fn($q) => $q->whereInvoice($request->invoice))
+                ->latest()
+                ->get();
 
         return response()->streamDownload(function () use ($orders) {
             $handle = fopen('php://output', 'w');

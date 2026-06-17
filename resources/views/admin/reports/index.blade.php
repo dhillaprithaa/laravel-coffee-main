@@ -5,11 +5,13 @@
   use App\Enums\OrderStatus;
   use App\Enums\PaymentMethod;
   use Illuminate\Support\Facades\Auth;
+
+  $reportTitle = Auth::user()->role === RoleType::STAFF ? 'Laporan Transaksi' : 'Laporan Penjualan';
 @endphp
 
 @extends('layouts.admin')
-@section('title', 'Laporan Penjualan')
-@section('page-title', 'Laporan Penjualan')
+@section('title', $reportTitle)
+@section('page-title', $reportTitle)
 
 @push('styles')
   <link rel="stylesheet" href="{{ asset('static/admin/reports/index.css') }}">

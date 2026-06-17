@@ -22,7 +22,9 @@ class StaffController extends Controller
     public function index(): View
     {
         return view('admin.staff.index', [
-            'staffList' => User::latest()->get(),
+            'staffList' => User::orderByRaw("role = 'pimpinan' DESC")  // pimpinan di atas
+                ->orderBy('name')                                       // sisanya urut A-Z
+                ->get(),
         ]);
     }
 

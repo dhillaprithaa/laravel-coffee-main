@@ -48,7 +48,7 @@
                         </a>
                         @can('delete', $table)
                           <form method="POST" action="{{ route('admin.tables.destroy', $table) }}"
-                            onsubmit="return confirm('Hapus Meja {{ $table->number }}?')">
+                            class="form-delete" data-name="Meja {{ $table->number }}">
                             @csrf @method('DELETE')
                             <button type="submit" class="action-btn btn-del" title="Hapus Meja">
                               <i class="fas fa-trash"></i>
@@ -121,8 +121,35 @@
   </div>
 
   @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
+      // ===== Konfirmasi hapus meja (SweetAlert2) =====
+      document.querySelectorAll('.form-delete').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          Swal.fire({
+            title: 'Hapus meja?',
+            html: 'Yakin mau hapus <b>' + form.dataset.name + '</b>?<br>Meja akan dihapus permanen.',
+            icon: 'warning',
+            iconColor: '#7b4a1e',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-trash mr-1"></i> Ya, hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#7b4a1e',
+            cancelButtonColor: '#a89a8c',
+            reverseButtons: true,
+            buttonsStyling: true,
+            background: '#fffdf9',
+          }).then(function (result) {
+            if (result.isConfirmed) {
+              form.submit();
+            }
+          });
+        });
+      });
+
+      // ===== Preview QR code =====
       const preview = document.querySelectorAll('.qrcode');
       preview.forEach(el => {
         const url = el.dataset.url;

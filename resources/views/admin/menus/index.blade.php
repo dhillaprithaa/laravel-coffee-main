@@ -71,8 +71,8 @@
                     </a>
                   @endcan
                   @can('delete', $menu)
-                    <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}" style="display:inline;"
-                      onsubmit="return confirm('Hapus menu {{ $menu->name }}?')">
+                    <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}"
+                      class="form-delete" data-name="{{ $menu->name }}" style="display:inline;">
                       @csrf @method('DELETE')
                       <button type="submit" class="action-btn btn-delete-menu">
                         <i class="fas fa-trash"></i>
@@ -100,7 +100,34 @@
 @endsection
 
 @push('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
+    // ===== Konfirmasi hapus menu (SweetAlert2) =====
+    document.querySelectorAll('.form-delete').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Hapus menu?',
+          html: 'Yakin mau hapus <b>' + form.dataset.name + '</b>?<br>Menu akan dihapus permanen.',
+          icon: 'warning',
+          iconColor: '#7b4a1e',
+          showCancelButton: true,
+          confirmButtonText: '<i class="fas fa-trash mr-1"></i> Ya, hapus',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#7b4a1e',
+          cancelButtonColor: '#a89a8c',
+          reverseButtons: true,
+          buttonsStyling: true,
+          background: '#fffdf9',
+        }).then(function (result) {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      });
+    });
+
+    // ===== Update stok inline =====
     document.querySelectorAll('.stock-input').forEach(input => {
       input.addEventListener('change', function() {
         const menuId = this.dataset.menuId;

@@ -195,124 +195,157 @@
 @endsection
 
 @push('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]').content;
     const BASE = '{{ route('admin.orders.index') }}';
     let countdown = 30;
 
     function konfirmasiBayar(orderId) {
-      if (!confirm('Konfirmasi pembayaran sudah diterima untuk pesanan ini?')) return;
-      const btn = document.getElementById('btn-lunas-' + orderId);
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Proses...';
-      }
-      fetch(`${BASE}/${orderId}/complete`, {
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': CSRF,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            showToast('💵 ' + data.message, 'success');
-            const sbBayar = document.getElementById('sb-bayar-' + orderId);
-            if (sbBayar) {
-              sbBayar.className = 'status-badge sb-bayar-paid';
-              sbBayar.innerHTML = '<i class="fas fa-check-circle"></i> Lunas';
+      Swal.fire({
+        title: 'Konfirmasi pembayaran?',
+        text: 'Pastikan pembayaran sudah benar-benar diterima untuk pesanan ini.',
+        icon: 'question',
+        iconColor: '#7b4a1e',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-money-bill-wave mr-1"></i> Ya, sudah bayar',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#7b4a1e',
+        cancelButtonColor: '#a89a8c',
+        reverseButtons: true,
+        buttonsStyling: true,
+        background: '#fffdf9',
+      }).then(function (result) {
+        if (!result.isConfirmed) return;
+
+        const btn = document.getElementById('btn-lunas-' + orderId);
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Proses...';
+        }
+        fetch(`${BASE}/${orderId}/complete`, {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': CSRF,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
             }
-            const sbPesanan = document.getElementById('sb-pesanan-' + orderId);
-            if (sbPesanan && data.new_status === 'diproses') {
-              sbPesanan.className = 'status-badge sb-pesanan-diproses';
-              sbPesanan.innerHTML = '<i class="fas fa-blender"></i> Diproses';
-              const card = document.getElementById('card-' + orderId);
-              if (card) {
-                card.classList.remove('pending');
-                card.classList.add('diproses');
+          })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showToast('💵 ' + data.message, 'success');
+              const sbBayar = document.getElementById('sb-bayar-' + orderId);
+              if (sbBayar) {
+                sbBayar.className = 'status-badge sb-bayar-paid';
+                sbBayar.innerHTML = '<i class="fas fa-check-circle"></i> Lunas';
               }
+              const sbPesanan = document.getElementById('sb-pesanan-' + orderId);
+              if (sbPesanan && data.new_status === 'diproses') {
+                sbPesanan.className = 'status-badge sb-pesanan-diproses';
+                sbPesanan.innerHTML = '<i class="fas fa-blender"></i> Diproses';
+                const card = document.getElementById('card-' + orderId);
+                if (card) {
+                  card.classList.remove('pending');
+                  card.classList.add('diproses');
+                }
+              }
+              if (btn) btn.remove();
+              const actions = document.querySelector('#card-' + orderId + ' .actions');
+              if (actions) {
+                const btnSelesai = document.createElement('button');
+                btnSelesai.className = 'btn-act btn-selesai';
+                btnSelesai.id = 'btn-selesai-' + orderId;
+                btnSelesai.innerHTML = '<i class="fas fa-check-circle"></i>Selesai';
+                btnSelesai.onclick = () => selesaikanPesanan(orderId, '');
+                actions.appendChild(btnSelesai);
+              }
+              updateStatPills();
+            } else {
+              if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-money-bill-wave"></i>Lunas';
+              }
+              showToast('❌ ' + (data.message || 'Gagal konfirmasi pembayaran.'), 'error');
             }
-            if (btn) btn.remove();
-            const actions = document.querySelector('#card-' + orderId + ' .actions');
-            if (actions) {
-              const btnSelesai = document.createElement('button');
-              btnSelesai.className = 'btn-act btn-selesai';
-              btnSelesai.id = 'btn-selesai-' + orderId;
-              btnSelesai.innerHTML = '<i class="fas fa-check-circle"></i>Selesai';
-              btnSelesai.onclick = () => selesaikanPesanan(orderId, '');
-              actions.appendChild(btnSelesai);
-            }
-            updateStatPills();
-          } else {
+          })
+          .catch(err => {
             if (btn) {
               btn.disabled = false;
               btn.innerHTML = '<i class="fas fa-money-bill-wave"></i>Lunas';
             }
-            showToast('❌ ' + (data.message || 'Gagal konfirmasi pembayaran.'), 'error');
-          }
-        })
-        .catch(err => {
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-money-bill-wave"></i>Lunas';
-          }
-          showToast('❌ Koneksi bermasalah. Coba refresh.', 'error');
-          console.error(err);
-        });
+            showToast('❌ Koneksi bermasalah. Coba refresh.', 'error');
+            console.error(err);
+          });
+      });
     }
 
     function selesaikanPesanan(orderId, invoice) {
       const label = invoice ? `pesanan ${invoice}` : 'pesanan ini';
-      if (!confirm(`Tandai ${label} sebagai SELESAI?`)) return;
-      const btn = document.getElementById('btn-selesai-' + orderId);
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Proses...';
-      }
-      fetch(`${BASE}/${orderId}/status`, {
-          method: 'PATCH',
-          headers: {
-            'X-CSRF-TOKEN': CSRF,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            status: 'selesai'
+      Swal.fire({
+        title: 'Selesaikan pesanan?',
+        html: 'Tandai <b>' + label + '</b> sebagai SELESAI?',
+        icon: 'question',
+        iconColor: '#7b4a1e',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check-circle mr-1"></i> Ya, selesai',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#7b4a1e',
+        cancelButtonColor: '#a89a8c',
+        reverseButtons: true,
+        buttonsStyling: true,
+        background: '#fffdf9',
+      }).then(function (result) {
+        if (!result.isConfirmed) return;
+
+        const btn = document.getElementById('btn-selesai-' + orderId);
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Proses...';
+        }
+        fetch(`${BASE}/${orderId}/status`, {
+            method: 'PATCH',
+            headers: {
+              'X-CSRF-TOKEN': CSRF,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              status: 'selesai'
+            })
           })
-        })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            showToast('✅ ' + data.message, 'success');
-            const card = document.getElementById('card-' + orderId);
-            if (card) {
-              card.style.transition = 'all .4s ease';
-              card.style.opacity = '0';
-              card.style.transform = 'translateX(40px)';
-              setTimeout(() => {
-                card.remove();
-                updateStatPills();
-                checkEmptyState();
-              }, 400);
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showToast('✅ ' + data.message, 'success');
+              const card = document.getElementById('card-' + orderId);
+              if (card) {
+                card.style.transition = 'all .4s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(40px)';
+                setTimeout(() => {
+                  card.remove();
+                  updateStatPills();
+                  checkEmptyState();
+                }, 400);
+              }
+            } else {
+              if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i>Selesai';
+              }
+              showToast('❌ Gagal menyelesaikan pesanan.', 'error');
             }
-          } else {
+          })
+          .catch(err => {
             if (btn) {
               btn.disabled = false;
               btn.innerHTML = '<i class="fas fa-check-circle"></i>Selesai';
             }
-            showToast('❌ Gagal menyelesaikan pesanan.', 'error');
-          }
-        })
-        .catch(err => {
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-check-circle"></i>Selesai';
-          }
-          showToast('❌ Koneksi bermasalah.', 'error');
-          console.error(err);
-        });
+            showToast('❌ Koneksi bermasalah.', 'error');
+            console.error(err);
+          });
+      });
     }
 
     function updateStatPills() {

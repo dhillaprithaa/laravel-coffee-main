@@ -48,8 +48,8 @@
                   </a>
                 @endcan
                 @can('delete', $staff)
-                  <form method="POST" action="{{ route('admin.staff.destroy', $staff) }}" style="display:inline;"
-                    onsubmit="return confirm('Hapus staff {{ $staff->name }}?')">
+                  <form method="POST" action="{{ route('admin.staff.destroy', $staff) }}"
+                    class="form-delete" data-name="{{ $staff->name }}" style="display:inline;">
                     @csrf @method('DELETE')
                     <button type="submit" class="action-btn btn-delete-menu">
                       <i class="fas fa-trash"></i>
@@ -74,3 +74,32 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.querySelectorAll('.form-delete').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Hapus staff?',
+          html: 'Yakin mau hapus <b>' + form.dataset.name + '</b>?<br> Staff akan dihapus permanen.',
+          icon: 'warning',
+          iconColor: '#7b4a1e',
+          showCancelButton: true,
+          confirmButtonText: '<i class="fas fa-trash mr-1"></i> Ya, hapus',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#7b4a1e',
+          cancelButtonColor: '#a89a8c',
+          reverseButtons: true,
+          buttonsStyling: true,
+          background: '#fffdf9',
+        }).then(function (result) {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      });
+    });
+  </script>
+@endpush
